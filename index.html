@@ -81,31 +81,85 @@ $('buildBtn').onclick=build;
 
 async function makeVideo(){
  if(!project)return;
- const box=$('renderStatus'); box.classList.remove('hidden'); box.textContent='Starting AI video scenes…';
- let scenes=[];
- if(Array.isArray(project.storyboard)) scenes=project.storyboard;
- else if(project.storyboard&&Array.isArray(project.storyboard.scenes)) scenes=project.storyboard.scenes;
- else if(Array.isArray(project.visuals)) scenes=project.visuals.map((x,i)=>({scene:i+1,prompt:typeof x==='string'?x:(x.prompt||x.description||JSON.stringify(x))}));
- scenes=scenes.slice(0,6);
- if(!scenes.length){box.textContent='No scene prompts were generated.';return}
- const ops=[];
- for(let i=0;i<scenes.length;i++){
-  box.textContent='Generating scene '+(i+1)+' of '+scenes.length+'…';
-  const s=scenes[i], prompt=s.prompt||s.visual||s.description||JSON.stringify(s);
-  const rr=await fetch(API+'/api/video-start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+' Cinematic faceless YouTube POV explainer, consistent visual identity, no on-screen text.',aspectRatio:'16:9',resolution:'720p'})});
-  const d=await rr.json(); if(!rr.ok)throw new Error(d.error||'Veo failed'); ops.push(d.operation);
- }
- box.textContent='Scenes started. Waiting for Veo…';
- let done=[];
- for(let tries=0;tries<60&&done.length<ops.length;tries++){
-  await new Promise(r=>setTimeout(r,10000)); done=[];
-  for(const op of ops){
-   const rr=await fetch(API+'/api/video-status?operation='+encodeURIComponent(op)); const d=await rr.json();
-   if(d.done&&d.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri)done.push(d.response.generateVideoResponse.generatedSamples[0].video.uri);
+ const box=$('renderStatus'); box.classList.remove('hidden');
+ try{
+  let scenes=[];
+  if(Array.isArray(project.storyboard)) scenes=project.storyboard;
+  else if(project.storyboard&&Array.isArray(project.storyboard.scenes)) scenes=project.storyboard.scenes;
+  else if(Array.isArray(project.visuals)) scenes=project.visuals.map((x,i)=>({scene:i+1,prompt:typeof x==='string'?x:(x.prompt||x.description||JSON.stringify(x))}));
+  scenes=scenes.slice(0,6);
+  if(!scenes.length)throw new Error('No scene prompts were generated.');
+  const ops=[];
+  for(let i=0;i<scenes.length;i++){
+   box.textContent='Generating scene '+(i+1)+' of '+scenes.length+' with Veo…';
+   const s=scenes[i], prompt=s.prompt||s.visual||s.description||JSON.stringify(s);
+   const rr=await fetch(API+'/api/video-start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+' Cinematic faceless YouTube POV explainer. Keep the visual identity consistent. No on-screen text. Include natural cinematic audio where appropriate.',aspectRatio:'16:9',resolution:'720p'})});
+   const d=await rr.json(); if(!rr.ok)throw new Error(d.error||'Veo failed'); ops.push(d.operation);
   }
-  box.textContent='Veo progress: '+done.length+'/'+ops.length+' scenes ready…';
+
+  const googleVideos=[];
+  for(let tries=0;tries<90&&googleVideos.length<ops.length;tries++){
+   await new Promise(r=>setTimeout(r,8000));
+   for(let i=googleVideos.length;i<ops.length;i++){
+    const rr=await fetch(API+'/api/video-status?operation='+encodeURIComponent(ops[i]));
+    const d=await rr.json();
+    if(!rr.ok)throw new Error(d.error||'Veo status failed');
+    const uri=d.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+    if(d.done&&uri)googleVideos[i]=uri;
+   }
+   box.textContent='Veo progress: '+googleVideos.filter(Boolean).length+'/'+ops.length+' scenes ready…';
+  }
+  if(googleVideos.filter(Boolean).length!==ops.length)throw new Error('Veo is still processing. Please tap Make Video again later.');
+
+  const hosted=[];
+  for(let i=0;i<googleVideos.length;i++){
+   box.textContent='Preparing scene '+(i+1)+' of '+googleVideos.length+' for final editing…';
+   const rr=await fetch(API+'/api/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({videoUri:googleVideos[i]})});
+   const d=await rr.json(); if(!rr.ok)throw new Error(d.error||'Asset upload failed');
+   let ready=null;
+   for(let t=0;t<60;t++){
+    const sr=await fetch(API+'/api/ingest-status?id='+encodeURIComponent(d.sourceId));
+    const sd=await sr.json(); if(!sr.ok)throw new Error(sd.error||'Asset status failed');
+    if(sd.status==='ready'&&sd.url){ready=sd;break}
+    if(sd.status==='failed')throw new Error('Shotstack could not ingest scene '+(i+1));
+    await new Promise(r=>setTimeout(r,3000));
+   }
+   if(!ready)throw new Error('Scene '+(i+1)+' took too long to prepare.');
+   hosted.push(ready);
+  }
+
+  const clips=[]; let cursor=0;
+  for(const item of hosted){
+   const len=Math.max(1,Number(item.duration)||8);
+   clips.push({asset:{type:'video',src:item.url},start:cursor,length:len,fit:'cover',transition:{in:'fade',out:'fade'}});
+   cursor+=len;
+  }
+  box.textContent='Sending the assembled timeline to Shotstack…';
+  const rr=await fetch(API+'/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    timeline:{background:'#000000',tracks:[{clips}]},
+    output:{format:'mp4',resolution:'hd',aspectRatio:'16:9'}
+  })});
+  const rd=await rr.json(); if(!rr.ok)throw new Error(rd.error||'Final render failed');
+  const renderId=rd.response?.id||rd.id||rd.data?.id;
+  if(!renderId)throw new Error('Shotstack did not return a render id.');
+
+  for(let t=0;t<90;t++){
+   box.textContent='Final video render: '+Math.round((t/90)*100)+'%…';
+   const sr=await fetch(API+'/api/render-status?id='+encodeURIComponent(renderId));
+   const sd=await sr.json(); if(!sr.ok)throw new Error(sd.error||'Render status failed');
+   if(sd.status==='done'||sd.status==='ready'||sd.url){
+    if(sd.url){
+     box.innerHTML='Your MP4 is ready. <a href="'+esc(sd.url)+'" target="_blank" rel="noopener" style="color:#fff;font-weight:800">Open final video</a>';
+     return;
+    }
+   }
+   if(sd.status==='failed')throw new Error('Shotstack final render failed.');
+   await new Promise(r=>setTimeout(r,5000));
+  }
+  box.textContent='Final render is still processing. Tap Make Video again later to check the latest result.';
+ }catch(e){
+  box.textContent='Video error: '+e.message;
  }
- box.textContent=done.length===ops.length?'All scenes generated. Final assembly endpoint is ready for the next render step.':'Veo is still processing. You can leave this page open and check again later.';
 }
 $('renderVideo').onclick=()=>makeVideo().catch(e=>{$('renderStatus').classList.remove('hidden');$('renderStatus').textContent='Video error: '+e.message});
 
