@@ -41,7 +41,7 @@
 
 <section id="output" class="card hidden">
 <div class="top"><h2>Your production</h2><button class="btn secondary" id="download" style="width:auto">Download</button></div>
-<div class="tabs" id="tabs"></div><pre id="viewer"></pre>
+<div class="tabs" id="tabs"></div><div id="captionEdit" class="hidden"><label class="label">EDIT CAPTIONS</label><textarea id="captionText" style="min-height:240px"></textarea><button class="btn secondary" id="saveCaptions">Save Caption Changes</button></div><pre id="viewer"></pre>
 </section>
 </main>
 <script>
@@ -53,11 +53,11 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function status(msg,err=false){$('status').classList.remove('hidden');$('status').innerHTML='<span class="'+(err?'err':'ok')+'">'+esc(msg)+'</span>'}
 function renderTabs(){$('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" data-tab="'+s+'">'+labels[s]+'</button>').join('');document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{current=b.dataset.tab;renderTabs();render()})}
-function render(){$('viewer').textContent=project&&project[current]?(typeof project[current]==='string'?project[current]:JSON.stringify(project[current],null,2)):'No content yet.'}
+function render(){const ce=$('captionEdit');if(current==='captions'){ce.classList.remove('hidden');$('captionText').value=typeof project.captions==='string'?project.captions:JSON.stringify(project.captions,null,2)}else{ce.classList.add('hidden')}$('viewer').textContent=project&&project[current]?(typeof project[current]==='string'?project[current]:JSON.stringify(project[current],null,2)):'No content yet.'}
 function saveLocal(){localStorage.setItem('povforge_project',JSON.stringify(project))}
 function download(){if(!project)return;const text=sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2))).join('\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='povforge-project.txt';a.click()}
 $('saveKey').onclick=()=>{const k=$('directKey').value.trim();if(!k)return status('Paste your Gemini key first.',true);localStorage.setItem('povforge_gemini_key',k);status('Backup key saved on this device.')}
-$('download').onclick=download;
+$('download').onclick=download;$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
 async function generateDirect(payload,key){
 const prompt='You are POVForge AI, an expert faceless YouTube producer. Research the topic using current web information when useful, then create an original production package.\nSETTINGS:\n'+JSON.stringify(payload)+'\nReturn ONLY valid JSON with exactly these keys: research, script, storyboard, visuals, voiceover, editing, captions, thumbnail, seo. Research should list important claims and sources. Script should fit the requested duration and use the requested narrative. Storyboard must be scene-by-scene with timestamps. Visuals must have one detailed generation prompt per scene. Voiceover must contain final narration. Editing must include CapCut-friendly cuts, music, SFX and transitions. Captions must specify the exact caption treatment. Thumbnail must include 3 concepts and a final image prompt. SEO must include 5 titles, description, tags, hashtags and pinned comment.';
 const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{responseMimeType:'application/json',temperature:.7}})});
