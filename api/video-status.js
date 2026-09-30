@@ -5,8 +5,8 @@ export default async function handler(req,res){
   if(req.method==='OPTIONS')return res.status(204).end();
   if(req.method!=='GET')return res.status(405).json({error:'GET only'});
   try{
-    const key=process.env.GEMINI_API_KEY, op=req.query?.operation;
-    if(!key)return res.status(500).json({error:'GEMINI_API_KEY is not configured'});
+    const key=process.env.GEMINI_API_KEY||req.query?.apiKey, op=req.query?.operation;
+    if(!key)return res.status(500).json({error:'No Gemini connection is configured. Save a Gemini API key in Backup AI first.'});
     if(!op)return res.status(400).json({error:'Missing operation'});
     const r=await fetch('https://generativelanguage.googleapis.com/v1beta/'+op,{headers:{'x-goog-api-key':key}});
     const d=await r.json();if(!r.ok)return res.status(r.status).json({error:d.error?.message||'Operation lookup failed'});
