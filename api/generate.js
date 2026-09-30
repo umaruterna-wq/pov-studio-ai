@@ -76,7 +76,26 @@ The research field should summarize the supplied research notes.`;
     if(!g.ok)return res.status(g.status).json({error:gd.error?.message||'Gemini generation failed'});
     const raw=gd.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
     let clean=raw.replace(/^\`\`\`json|^\`\`\`|\`\`\`$/g,'').trim();
-    const project=JSON.parse(clean);
+    // Be tolerant of harmless text or a second JSON fragment after the main object.
+    function extractFirstJsonObject(s){
+      const start=s.indexOf('{');
+      if(start<0) throw new Error('Gemini returned no JSON object.');
+      let depth=0,inString=false,escaped=false;
+      for(let i=start;i<s.length;i++){
+        const ch=s[i];
+        if(inString){
+          if(escaped) escaped=false;
+          else if(ch==='\\\\') escaped=true;
+          else if(ch==='"') inString=false;
+        }else{
+          if(ch==='"') inString=true;
+          else if(ch==='{') depth++;
+          else if(ch==='}' && --depth===0) return s.slice(start,i+1);
+        }
+      }
+      throw new Error('Gemini returned incomplete JSON.');
+    }
+    const project=JSON.parse(extractFirstJsonObject(clean));
     return res.status(200).json({
       project,
       grounding:rd.candidates?.[0]?.groundingMetadata||null
