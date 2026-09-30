@@ -135,7 +135,7 @@ try{
  box.textContent='The render is still processing. Tap Make Video again later to check it.';
 }catch(e){box.textContent='No-Veo video error: '+(e.message||'Unknown video error')}
 }
-$('renderVideo').onclick=()=>makeVideo().catch(e=>{$('renderStatus').classList.remove('hidden');$('renderStatus').textContent='Video error: '+e.message});
+$('renderVideo').addEventListener('click',async()=>{\n  const box=$('renderStatus');\n  box.classList.remove('hidden');\n  box.textContent='Starting no-Veo video generation…';\n  $('renderVideo').disabled=true;\n  $('renderVideo').textContent='Starting…';\n  try{await makeVideo()}catch(e){box.textContent='Video error: '+(e?.message||String(e))}finally{$('renderVideo').disabled=false;$('renderVideo').textContent='Make Video (No Veo)'}\n});
 
 const old=localStorage.getItem('povforge_project');if(old){try{project=JSON.parse(old);$('output').classList.remove('hidden');renderTabs();render()}catch{}}
 </script></body></html>
