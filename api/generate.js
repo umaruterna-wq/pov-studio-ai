@@ -9,7 +9,8 @@ export default async function handler(req,res){
     const {idea,duration='10 minutes',voice='Deep Male',voiceStyle='Deadpan',visualStyle='Deadpan Flat Cartoon',perspective='Second-Person POV',direction='Real-Insert Explainer',captions='Deadpan Subtitle Sans',reference=''}=body;
     if(!idea) return res.status(400).json({error:'Missing idea'});
     const key=process.env.GEMINI_API_KEY||process.env.GOOGLE_API_KEY||process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    if(!key) return res.status(500).json({error:'Gemini server connection is unavailable. Use the Backup AI connection in POVForge or configure GEMINI_API_KEY in the Vercel Production environment.'});
+    if(!key) return res.status(500).json({error:'Gemini server connection is unavailable. Configure GEMINI_API_KEY in the Vercel Production environment.'});
+
     const prompt=`You are POVForge AI, an expert faceless YouTube producer.
 Create an original, research-aware production package for this video:
 IDEA: ${idea}
@@ -22,7 +23,8 @@ DIRECTION: ${direction}
 CAPTIONS: ${captions}
 REFERENCE: ${reference||'None'}
 
-Use Google Search grounding for current factual claims. Clearly separate facts from fictional POV/recreations. Never present generated footage as real evidence. Return ONLY valid JSON with exactly:
+Clearly separate facts from fictional POV/recreations. Never present generated footage as real evidence.
+Return a complete production package with:
 research, script, storyboard, visuals, voiceover, editing, captions, thumbnail, seo.
 Research: key factual points, source titles/URLs when available, and uncertainty notes.
 Script: a strong hook, retention beats, pattern interrupts, and satisfying ending sized for the requested duration.
@@ -33,16 +35,53 @@ Editing: CapCut-friendly timeline, music, SFX, zooms, cuts, B-roll and real-inse
 Captions: exact caption style, timing approach and on-screen text rules.
 Thumbnail: three concepts plus one final image prompt and overlay text.
 SEO: five titles, description, tags, hashtags and pinned comment.`;
+
+    // Gemini currently rejects combining Google Search grounding with JSON response
+    // formatting on this model. Research and structured generation are therefore
+    // performed as two calls.
+    const researchPrompt=`Research the following YouTube video topic using Google Search grounding. Give concise, useful factual notes, source titles and URLs when available, and clearly flag uncertain or disputed claims. Do not write the final script.
+TOPIC: ${idea}`;
+
+    const rg=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({
+        contents:[{parts:[{text:researchPrompt}]}],
+        tools:[{google_search:{}}],
+        generationConfig:{temperature:.2}
+      })
+    });
+    const rd=await rg.json();
+    if(!rg.ok)return res.status(rg.status).json({error:rd.error?.message||'Gemini research failed'});
+    const research=rd.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'No research was returned.';
+
+    const finalPrompt=prompt+`
+
+RESEARCH NOTES FROM A SEPARATE GROUNDED SEARCH:
+${research}
+
+Use those research notes when appropriate. Do not invent sources. Return ONLY valid JSON with exactly these top-level keys:
+research, script, storyboard, visuals, voiceover, editing, captions, thumbnail, seo.
+The research field should summarize the supplied research notes.`;
+
     const g=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-goog-api-key':key},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{responseMimeType:'application/json',temperature:.7}})
+      body:JSON.stringify({
+        contents:[{parts:[{text:finalPrompt}]}],
+        generationConfig:{responseMimeType:'application/json',temperature:.7}
+      })
     });
     const gd=await g.json();
-    if(!g.ok)return res.status(g.status).json({error:gd.error?.message||'Gemini failed'});
+    if(!g.ok)return res.status(g.status).json({error:gd.error?.message||'Gemini generation failed'});
     const raw=gd.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
     let clean=raw.replace(/^\`\`\`json|^\`\`\`|\`\`\`$/g,'').trim();
     const project=JSON.parse(clean);
-    return res.status(200).json({project,grounding:gd.candidates?.[0]?.groundingMetadata||null});
-  }catch(e){return res.status(500).json({error:e.message||'Server error'})}
+    return res.status(200).json({
+      project,
+      grounding:rd.candidates?.[0]?.groundingMetadata||null
+    });
+  }catch(e){
+    return res.status(500).json({error:e.message||'Server error'});
+  }
 }
