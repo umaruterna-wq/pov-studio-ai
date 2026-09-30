@@ -67,15 +67,15 @@ The research field should summarize the supplied research notes.`;
     const schema={
       type:'OBJECT',
       properties:{
-        research:{type:'OBJECT'},
-        script:{type:'OBJECT'},
-        storyboard:{type:'ARRAY',items:{type:'OBJECT'}},
-        visuals:{type:'ARRAY',items:{type:'OBJECT'}},
-        voiceover:{type:'OBJECT'},
-        editing:{type:'OBJECT'},
-        captions:{type:'OBJECT'},
-        thumbnail:{type:'OBJECT'},
-        seo:{type:'OBJECT'}
+        research:{type:'OBJECT',additionalProperties:true},
+        script:{type:'OBJECT',additionalProperties:true},
+        storyboard:{type:'ARRAY',items:{type:'OBJECT',additionalProperties:true}},
+        visuals:{type:'ARRAY',items:{type:'OBJECT',additionalProperties:true}},
+        voiceover:{type:'OBJECT',additionalProperties:true},
+        editing:{type:'OBJECT',additionalProperties:true},
+        captions:{type:'OBJECT',additionalProperties:true},
+        thumbnail:{type:'OBJECT',additionalProperties:true},
+        seo:{type:'OBJECT',additionalProperties:true}
       },
       required:['research','script','storyboard','visuals','voiceover','editing','captions','thumbnail','seo']
     };
