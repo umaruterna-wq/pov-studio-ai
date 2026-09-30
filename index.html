@@ -110,7 +110,7 @@ try{
  for(let i=0;i<scenes.length;i++){
   box.textContent='Starting Veo scene '+(i+1)+' of '+scenes.length+'…';
   const s=scenes[i],prompt=s.prompt||s.visual||s.description||JSON.stringify(s);
-  const d=await apiFetch('/api/video-start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+' Cinematic faceless YouTube POV explainer. Keep the visual identity consistent. No on-screen text. Include natural cinematic audio where appropriate.',aspectRatio:'16:9',resolution:'720p',apiKey:localStorage.getItem('povforge_gemini_key')||''})});
+  const d=await apiFetch('/api/video-start-v2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+' Cinematic faceless YouTube POV explainer. Keep the visual identity consistent. No on-screen text. Include natural cinematic audio where appropriate.',aspectRatio:'16:9',resolution:'720p',apiKey:localStorage.getItem('povforge_gemini_key')||''})});
   if(!d.operation)throw new Error('Veo did not return an operation for scene '+(i+1));
   ops.push(d.operation);
  }
