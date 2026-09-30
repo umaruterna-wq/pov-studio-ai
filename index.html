@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POV Studio AI</title>
+<meta name="description" content="Mobile-first AI studio for creating faceless POV explainer videos.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#0b0d12;color:#f5f7fb}button,input,select,textarea{font:inherit}
+main{max-width:720px;margin:auto;padding:20px}.brand{font-weight:800;font-size:24px}.muted{color:#9da5b4}.hero{padding:28px 0}.hero h1{font-size:38px;line-height:1.05;margin:8px 0 12px}
+.card{background:#131722;border:1px solid #252b38;border-radius:18px;padding:18px;margin:14px 0}.label{font-size:13px;color:#aab2c0;margin-bottom:7px;display:block}
+input,select,textarea{width:100%;background:#0d1017;border:1px solid #303746;color:#fff;border-radius:12px;padding:13px;margin-bottom:14px}textarea{min-height:110px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;border:0;border-radius:13px;padding:14px;font-weight:750;cursor:pointer}.primary{background:#fff;color:#080a0e}.secondary{background:#202633;color:#fff}
+.pipeline,.result{display:none}.step{padding:12px 0;border-bottom:1px solid #252b38}.step:last-child{border:0}.ok{color:#74e39a}.pill{display:inline-block;background:#202633;border-radius:99px;padding:5px 9px;font-size:12px;margin:3px}
+</style></head>
+<body><main>
+<div class="brand">POV Studio AI</div>
+<div class="hero"><span class="pill">Mobile-first</span><span class="pill">AI Video Studio</span><h1>Turn one idea into a YouTube video.</h1><p class="muted">Plan, write, storyboard, voice, visuals and publish from your phone.</p></div>
+<section class="card">
+<label class="label">VIDEO IDEA</label><textarea id="idea" placeholder="Example: POV: You Become a Billionaire Overnight"></textarea>
+<div class="grid"><div><label class="label">DURATION</label><select id="duration"><option>8 minutes</option><option>10 minutes</option><option>12 minutes</option></select></div>
+<div><label class="label">VOICE</label><select id="voice"><option>Deep Male</option><option>Calm Male</option><option>Female</option></select></div></div>
+<label class="label">VISUAL STYLE</label><select id="style"><option>Cinematic POV</option><option>Realistic Documentary</option><option>Dark Mystery</option><option>Futuristic</option></select>
+<label class="label">REFERENCE VIDEO (OPTIONAL)</label><input id="ref" placeholder="Paste a YouTube URL">
+<button class="btn primary" onclick="start()">Build My Video</button></section>
+<section class="card pipeline" id="pipeline"><h2>Production</h2><div id="steps"></div></section>
+<section class="card result" id="result"><h2>Your project is ready</h2><p id="summary" class="muted"></p><button class="btn secondary" onclick="downloadPlan()">Download Project Blueprint</button></section>
+</main>
+<script>
+let plan={};
+function start(){
+var idea=document.getElementById('idea').value.trim(); if(!idea){alert('Enter your video idea first.');return}
+plan={idea:idea,duration:document.getElementById('duration').value,voice:document.getElementById('voice').value,style:document.getElementById('style').value,reference:document.getElementById('ref').value.trim()};
+document.getElementById('pipeline').style.display='block';document.getElementById('result').style.display='none';
+var names=['Research topic','Write retention-focused script','Create scene storyboard','Prepare visual prompts','Generate voiceover plan','Build editing timeline','Create thumbnail + SEO package','Quality check'];
+var box=document.getElementById('steps');box.innerHTML='';
+names.forEach(function(n,i){setTimeout(function(){box.innerHTML += '<div class="step"><span class="ok">✓</span> '+n+'</div>'},i*250)});
+setTimeout(function(){document.getElementById('result').style.display='block';document.getElementById('summary').textContent=plan.duration+' '+plan.style+' project using a '+plan.voice+' voice.'},names.length*250+300);
+}
+function downloadPlan(){
+var text='POV STUDIO AI PROJECT\n\nIdea: '+plan.idea+'\nDuration: '+plan.duration+'\nVoice: '+plan.voice+'\nStyle: '+plan.style+'\nReference: '+(plan.reference||'None')+'\n\nPipeline: Research > Script > Storyboard > Visuals > Voice > Edit > Thumbnail/SEO > QC > Publish';
+var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='pov-studio-project.txt';a.click();
+}
+</script></body></html>
