@@ -97,7 +97,10 @@ const idea=$('idea').value.trim();if(!idea)return showStatus('Enter your video i
 const duration=$('duration').value,voice=$('voice').value,style=$('style').value,ref=$('ref').value.trim();
 const voiceStyle=$('voiceStyle').value,perspective=$('perspective').value,direction=$('direction').value,captions=$('captions').value;
 showStatus('AI is building your full production blueprint…');$('output').classList.add('hidden');
-try{\nconst res=await fetch(API_BASE+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,duration,voice,voiceStyle,visualStyle:style,perspective,direction,captions,reference:ref})});\nconst data=await res.json();if(!res.ok)throw new Error(data.error||'Backend request failed');\nproject=data.project;\n$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
+try{
+const res=await fetch(API_BASE+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,duration,voice,voiceStyle,visualStyle:style,perspective,direction,captions,reference:ref})});
+const data=await res.json();if(!res.ok)throw new Error(data.error||'Backend request failed');
+project=data.project;\n$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
 }catch(e){showStatus(e.message||'Something went wrong. Check your API key and try again.',true)}
 }
 function renderTabs(){ $('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" onclick="current=\''+s+'\';renderTabs();render()">'+labels[s]+'</button>').join('') }
