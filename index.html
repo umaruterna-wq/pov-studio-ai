@@ -70,7 +70,7 @@ $('buildBtn').disabled=true;$('buildBtn').textContent='Building…';status('POVF
 try{
 let r=await fetch(API+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 let d=await r.json();
-if(!r.ok)throw new Error(d.error||'Server failed');
+if(!r.ok)throw new Error(d.error||('Server returned HTTP '+r.status));
 project=d.project||d;status('Production package ready.');$('output').classList.remove('hidden');renderTabs();render();saveLocal();
 }catch(serverErr){
 const key=localStorage.getItem('povforge_gemini_key');
