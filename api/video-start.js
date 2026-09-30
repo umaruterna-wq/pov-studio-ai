@@ -5,8 +5,8 @@ export default async function handler(req,res){
   if(req.method==='OPTIONS') return res.status(204).end();
   if(req.method!=='POST') return res.status(405).json({error:'POST only'});
   try{
-    const b=req.body||{}, key=process.env.GEMINI_API_KEY;
-    if(!key)return res.status(500).json({error:'GEMINI_API_KEY is not configured on the server'});
+    const b=req.body||{}, key=process.env.GEMINI_API_KEY||b.apiKey;
+    if(!key)return res.status(500).json({error:'No Gemini connection is configured. Save a Gemini API key in Backup AI first.'});
     if(!b.prompt)return res.status(400).json({error:'Missing prompt'});
     const model=b.model||'veo-3.1-fast-generate-preview';
     const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':predictLongRunning',{
