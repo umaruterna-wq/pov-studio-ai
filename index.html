@@ -57,7 +57,7 @@ function render(){const ce=$('captionEdit');if(current==='captions'){ce.classLis
 function saveLocal(){localStorage.setItem('povforge_project',JSON.stringify(project))}
 function download(){if(!project)return;const text=sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2))).join('\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='povforge-project.txt';a.click()}
 $('saveKey').onclick=()=>{const k=$('directKey').value.trim();if(!k)return status('Paste your Gemini key first.',true);localStorage.setItem('povforge_gemini_key',k);status('Backup key saved on this device.')}
-$('download').onclick=download;$('previewVideo').onclick=previewScenes;$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
+$('download').onclick=download;$('previewVideo').onclick=()=>{if(!project)return;current='storyboard';renderTabs();render()};$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
 async function generateDirect(payload,key){
 const researchPrompt='Research this YouTube topic using Google Search grounding. Return concise factual notes, useful source titles/URLs when available, and uncertainty notes. Do not write the final production package. TOPIC: '+payload.idea;
 const rr=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:researchPrompt}]}],tools:[{google_search:{}}],generationConfig:{temperature:.2}})});
@@ -135,7 +135,7 @@ try{
  box.textContent='The render is still processing. Tap Make Video again later to check it.';
 }catch(e){box.textContent='No-Veo video error: '+(e.message||'Unknown video error')}
 }
-$('renderVideo').addEventListener('click',async()=>{\n  const box=$('renderStatus');\n  box.classList.remove('hidden');\n  box.textContent='Starting no-Veo video generation…';\n  $('renderVideo').disabled=true;\n  $('renderVideo').textContent='Starting…';\n  try{await makeVideo()}catch(e){box.textContent='Video error: '+(e?.message||String(e))}finally{$('renderVideo').disabled=false;$('renderVideo').textContent='Make Video (No Veo)'}\n});
+$('renderVideo').addEventListener('click',async()=>{const box=$('renderStatus');box.classList.remove('hidden');box.textContent='Starting no-Veo video generation…';$('renderVideo').disabled=true;$('renderVideo').textContent='Starting…';try{await makeVideo()}catch(e){box.textContent='Video error: '+(e?.message||String(e))}finally{$('renderVideo').disabled=false;$('renderVideo').textContent='Make Video (No Veo)'}});
 
 const old=localStorage.getItem('povforge_project');if(old){try{project=JSON.parse(old);$('output').classList.remove('hidden');renderTabs();render()}catch{}}
 </script></body></html>
