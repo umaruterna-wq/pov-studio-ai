@@ -54,45 +54,9 @@ const API_BASE='https://pov-studio-ai.vercel.app';let project=null;let current='
 const sections=['script','storyboard','visuals','voiceover','editing','thumbnail','seo'];
 const labels={script:'Script',storyboard:'Storyboard',visuals:'Visual Prompts',voiceover:'Voiceover',editing:'Edit Plan',thumbnail:'Thumbnail',seo:'YouTube SEO'};
 function $(id){return document.getElementById(id)}
-function saveKey(){let k=$('key').value.trim();if(!k)return alert('Paste your Gemini API key first.');localStorage.setItem(KEY,k);alert('Saved on this device.')}
-function clearKey(){localStorage.removeItem(KEY);$('key').value='';alert('Saved key cleared.')}
-function getKey(){return $('key').value.trim()||localStorage.getItem(KEY)||''}
 function showStatus(msg,err=false){$('status').classList.remove('hidden');$('status').innerHTML=err?'<span class="err">'+escapeHtml(msg)+'</span>':'<span class="ok">'+escapeHtml(msg)+'</span>'}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function makePrompt(idea,duration,voice,style,ref,voiceStyle,perspective,direction,captions){
-return \`You are POV Studio AI, an expert YouTube producer for faceless POV explainer videos.
-
-Create a complete production blueprint using these exact creative settings:
-IDEA: \${idea}
-TARGET LENGTH: \${duration}
-BASE VOICE: \${voice}
-VOICE STYLE: \${voiceStyle}
-VISUAL STYLE: \${style}
-NARRATIVE: \${perspective}
-DIRECTION: \${direction}
-CAPTION STYLE: \${captions}
-REFERENCE: \${ref||'None'}
-
-CREATIVE RULES:
-- Deadpan Flat Cartoon: use simple flat 2D cartoon visuals, clean shapes, restrained expressions and visual humor when selected.
-- Second-Person POV: address the viewer as "you" and make the viewer the central character when selected.
-- Real-Insert Explainer: blend the main visual style with realistic inserts such as news clips, documents, phone screens, maps, charts or photographic-style B-roll when useful. Clearly label fictional recreations; do not present generated material as real footage.
-- Deadpan voice: calm, dry, understated delivery with controlled emotion and deliberate pauses.
-- Deadpan Subtitle Sans: clean sans-serif captions, short phrases, strong readability, restrained animation and no excessive effects.
-
-Return ONLY valid JSON with these exact top-level keys:
-script, storyboard, visuals, voiceover, editing, thumbnail, seo
-
-Requirements:
-- Script: a compelling retention-focused YouTube script sized for the requested duration. Include a strong hook, escalating story, pattern interrupts, and a satisfying ending. Do not claim invented facts as real.
-- Storyboard: numbered scenes with approximate timestamps, what the viewer sees, narration purpose and transition.
-- Visuals: one detailed image/video-generation prompt per scene. Maintain consistent visual style, characters/world, 16:9 framing and the selected direction.
-- Voiceover: clean narration guidance plus final narration text, matching the selected voice style and narrative perspective.
-- Editing: CapCut-friendly timeline instructions, caption treatment matching the selected caption style, sound effects, music moments, zooms/cuts and B-roll/real-insert placement.
-- Thumbnail: 3 thumbnail concepts plus one final image-generation prompt and short text overlay.
-- SEO: 5 title options, description, keywords/tags, hashtags and a short pinned-comment idea.
-Keep the content original and avoid copying any reference creator's wording.\`;
-}async function build(){
+async function build(){
 const idea=$('idea').value.trim();if(!idea)return showStatus('Enter your video idea first.',true);
 const duration=$('duration').value,voice=$('voice').value,style=$('style').value,ref=$('ref').value.trim();
 const voiceStyle=$('voiceStyle').value,perspective=$('perspective').value,direction=$('direction').value,captions=$('captions').value;
@@ -100,7 +64,7 @@ showStatus('AI is building your full production blueprint…');$('output').class
 try{
 const res=await fetch(API_BASE+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,duration,voice,voiceStyle,visualStyle:style,perspective,direction,captions,reference:ref})});
 const data=await res.json();if(!res.ok)throw new Error(data.error||'Backend request failed');
-project=data.project;\n$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
+project=data.project;$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
 }catch(e){showStatus(e.message||'Something went wrong. Check your API key and try again.',true)}
 }
 function renderTabs(){ $('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" onclick="current=\''+s+'\';renderTabs();render()">'+labels[s]+'</button>').join('') }
