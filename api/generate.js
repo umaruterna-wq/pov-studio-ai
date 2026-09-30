@@ -64,12 +64,31 @@ Use those research notes when appropriate. Do not invent sources. Return ONLY va
 research, script, storyboard, visuals, voiceover, editing, captions, thumbnail, seo.
 The research field should summarize the supplied research notes.`;
 
+    const schema={
+      type:'OBJECT',
+      properties:{
+        research:{type:'OBJECT'},
+        script:{type:'OBJECT'},
+        storyboard:{type:'ARRAY',items:{type:'OBJECT'}},
+        visuals:{type:'ARRAY',items:{type:'OBJECT'}},
+        voiceover:{type:'OBJECT'},
+        editing:{type:'OBJECT'},
+        captions:{type:'OBJECT'},
+        thumbnail:{type:'OBJECT'},
+        seo:{type:'OBJECT'}
+      },
+      required:['research','script','storyboard','visuals','voiceover','editing','captions','thumbnail','seo']
+    };
     const g=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-goog-api-key':key},
       body:JSON.stringify({
         contents:[{parts:[{text:finalPrompt}]}],
-        generationConfig:{responseMimeType:'application/json',temperature:.7}
+        generationConfig:{
+          responseMimeType:'application/json',
+          responseSchema:schema,
+          temperature:.5
+        }
       })
     });
     const gd=await g.json();
