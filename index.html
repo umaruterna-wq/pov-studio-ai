@@ -40,7 +40,7 @@
 </section>
 
 <section id="output" class="card hidden">
-<div class="top"><h2>Your production</h2><div style="display:flex;gap:7px"><button class="btn secondary" id="download" style="width:auto">Download</button><button class="btn primary" id="renderVideo" style="width:auto">Make Video</button></div></div><div id="renderStatus" class="status hidden"></div>
+<div class="top"><h2>Your production</h2><div style="display:flex;gap:7px"><button class="btn secondary" id="download" style="width:auto">Download</button><button class="btn secondary" id="previewVideo" style="width:auto">Preview Scenes</button><button class="btn primary" id="renderVideo" style="width:auto">Make Final Video</button></div></div><div id="renderStatus" class="status hidden"></div>
 <div class="tabs" id="tabs"></div><div id="captionEdit" class="hidden"><label class="label">EDIT CAPTIONS</label><textarea id="captionText" style="min-height:240px"></textarea><button class="btn secondary" id="saveCaptions">Save Caption Changes</button></div><pre id="viewer"></pre>
 </section>
 </main>
@@ -57,7 +57,7 @@ function render(){const ce=$('captionEdit');if(current==='captions'){ce.classLis
 function saveLocal(){localStorage.setItem('povforge_project',JSON.stringify(project))}
 function download(){if(!project)return;const text=sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2))).join('\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='povforge-project.txt';a.click()}
 $('saveKey').onclick=()=>{const k=$('directKey').value.trim();if(!k)return status('Paste your Gemini key first.',true);localStorage.setItem('povforge_gemini_key',k);status('Backup key saved on this device.')}
-$('download').onclick=download;$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
+$('download').onclick=download;$('previewVideo').onclick=previewScenes;$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
 async function generateDirect(payload,key){
 const researchPrompt='Research this YouTube topic using Google Search grounding. Return concise factual notes, useful source titles/URLs when available, and uncertainty notes. Do not write the final production package. TOPIC: '+payload.idea;
 const rr=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:researchPrompt}]}],tools:[{google_search:{}}],generationConfig:{temperature:.2}})});
@@ -154,7 +154,7 @@ try{
   await new Promise(r=>setTimeout(r,5000));
  }
  box.textContent='Final render is still processing. Tap Make Video again later to check the latest result.';
-}catch(e){box.textContent='Video error: '+e.message}
+}catch(e){const msg=e.message||'Unknown video error'; if(/quota|rate limit|resource exhausted|billing|plan/i.test(msg)){box.innerHTML='<strong>Veo quota reached.</strong><br><span class="small">Preview Mode is available and does not call Veo. Check your Google AI Studio quota/billing, then try Make Final Video again.</span>'}else{box.textContent='Video error: '+msg}}
 }
 $('renderVideo').onclick=()=>makeVideo().catch(e=>{$('renderStatus').classList.remove('hidden');$('renderStatus').textContent='Video error: '+e.message});
 
