@@ -1,77 +1,82 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>POV Studio AI</title>
-<meta name="description" content="Mobile-first AI studio for creating faceless POV explainer videos.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>POVForge AI</title><meta name="description" content="POVForge AI turns one idea into a complete faceless YouTube production plan.">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#080a0f;color:#f5f7fb}button,input,select,textarea{font:inherit}
-main{max-width:760px;margin:auto;padding:18px}.brand{font-weight:850;font-size:24px}.muted{color:#9da5b4}.hero{padding:25px 0}.hero h1{font-size:38px;line-height:1.05;margin:8px 0 12px}
-.card{background:#121620;border:1px solid #252b38;border-radius:18px;padding:18px;margin:14px 0}.label{font-size:12px;color:#aab2c0;margin:0 0 7px;display:block;letter-spacing:.04em}
-input,select,textarea{width:100%;background:#0c0f16;border:1px solid #303746;color:#fff;border-radius:12px;padding:13px;margin-bottom:14px}textarea{min-height:110px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;border:0;border-radius:13px;padding:14px;font-weight:800;cursor:pointer}.primary{background:#fff;color:#080a0e}.secondary{background:#202633;color:#fff}.danger{background:#3a2025;color:#fff}
-.pill{display:inline-block;background:#202633;border-radius:99px;padding:5px 9px;font-size:12px;margin:3px}.hidden{display:none}.status{padding:12px;border-radius:12px;background:#0d1119;margin:12px 0}.ok{color:#74e39a}.err{color:#ff8793}
-.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:12px}.tab{white-space:nowrap;background:#202633;color:#fff;border:0;border-radius:10px;padding:9px 12px}.tab.active{background:#fff;color:#080a0e}
-pre{white-space:pre-wrap;word-wrap:break-word;background:#0b0e14;border:1px solid #242b38;border-radius:12px;padding:14px;line-height:1.5;font-size:14px}
-.small{font-size:12px}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+:root{--bg:#07090d;--card:#10141c;--line:#252c38;--muted:#9aa4b2;--text:#f6f7fb;--accent:#fff;--dark:#090b10}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#1a2030 0,#07090d 45%);color:var(--text);font:15px system-ui,-apple-system,sans-serif}main{max-width:820px;margin:auto;padding:18px}.brand{font-size:24px;font-weight:900}.tag{display:inline-block;background:#1b2230;border:1px solid #303949;border-radius:99px;padding:5px 9px;font-size:12px;margin:3px}.hero{padding:30px 0 16px}.hero h1{font-size:42px;line-height:1.02;margin:12px 0}.muted{color:var(--muted)}.card{background:rgba(16,20,28,.94);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 12px 40px #0005}.label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;color:#aab3c2;margin:0 0 7px}input,textarea,select{width:100%;background:#090c12;color:#fff;border:1px solid #303846;border-radius:12px;padding:13px;margin:0 0 14px}textarea{min-height:110px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:12px;padding:14px;font-weight:850;width:100%;cursor:pointer}.primary{background:#fff;color:#080a0e}.secondary{background:#202735;color:#fff}.status{padding:12px;border-radius:12px;background:#0b0f16;margin-top:12px}.ok{color:#76e3a0}.err{color:#ff8894}.hidden{display:none}.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:5px}.tab{white-space:nowrap;border:0;background:#202735;color:#fff;padding:9px 12px;border-radius:10px}.tab.active{background:#fff;color:#080a0e}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}pre{white-space:pre-wrap;word-break:break-word;background:#090c12;border:1px solid #252c38;border-radius:12px;padding:14px;line-height:1.55}.small{font-size:12px}.danger{background:#3b2026;color:#fff}
+@media(max-width:560px){.hero h1{font-size:34px}.grid{grid-template-columns:1fr}}
 </style></head>
 <body><main>
-<div class="brand">POV Studio AI</div>
-<div class="hero"><span class="pill">Mobile-first</span><span class="pill">Gemini-powered</span><h1>Turn one idea into a complete YouTube video.</h1><p class="muted">Script, scenes, visual prompts, voiceover, editing, thumbnail and SEO — from your phone.</p></div>
+<div class="brand">POVForge AI</div>
+<div class="hero"><span class="tag">Phone-first</span><span class="tag">AI Producer</span><span class="tag">YouTube</span><h1>One idea. One complete production.</h1><p class="muted">Research, script, scenes, visuals, voiceover, edit plan, captions, thumbnail and SEO — built for faceless POV channels.</p></div>
 
-<section class="card"><h2>1. Create Project</h2>
-<label class="label">VIDEO IDEA</label>
-<textarea id="idea" placeholder="Example: POV: You Become a Billionaire Overnight"></textarea>
+<section class="card">
+<h2>Build a video</h2>
+<label class="label">VIDEO IDEA</label><textarea id="idea" placeholder="POV: You Become a Billionaire Overnight"></textarea>
 <div class="grid">
-<div><label class="label">DURATION</label><select id="duration"><option>8 minutes</option><option>10 minutes</option><option>12 minutes</option></select></div>
-<div><label class="label">VOICE</label><select id="voice"><option>Deep Male</option><option>Calm Male</option><option>Female</option></select></div>
+<div><label class="label">DURATION</label><select id="duration"><option>8 minutes</option><option selected>10 minutes</option><option>12 minutes</option></select></div>
+<div><label class="label">VOICE</label><select id="voice"><option>Deep Male</option><option>Calm Male</option><option>Female</option><option>Deadpan</option></select></div>
 </div>
-<label class="label">VISUAL STYLE</label>
-<select id="style"><option>Cinematic POV</option><option>Realistic Documentary</option><option>Dark Mystery</option><option>Futuristic</option><option>Deadpan Flat Cartoon</option></select>
-<label class="label">VOICE STYLE</label>
-<select id="voiceStyle"><option>Deep Male</option><option>Calm Male</option><option>Female</option><option>Deadpan</option></select>
-<label class="label">POV / NARRATIVE</label>
-<select id="perspective"><option>Second-Person POV</option><option>First-Person POV</option><option>Third-Person Explainer</option></select>
-<label class="label">DIRECTION</label>
-<select id="direction"><option>Real-Insert Explainer</option><option>Cinematic Story</option><option>Documentary Explainer</option><option>Dark Mystery</option></select>
-<label class="label">CAPTIONS</label>
-<select id="captions"><option>Deadpan Subtitle Sans</option><option>Clean Bold Captions</option><option>Minimal Captions</option><option>Dynamic Word Captions</option></select>
-<label class="label">REFERENCE VIDEO (OPTIONAL)</label>
-<input id="ref" placeholder="Paste a YouTube URL or describe the reference">
-<button class="btn primary" onclick="build()">Build My Video</button>
+<div class="grid">
+<div><label class="label">VISUAL STYLE</label><select id="style"><option>Deadpan Flat Cartoon</option><option>Cinematic POV</option><option>Realistic Documentary</option><option>Dark Mystery</option><option>Futuristic</option></select></div>
+<div><label class="label">DIRECTION</label><select id="direction"><option>Real-Insert Explainer</option><option>Cinematic Story</option><option>Documentary Explainer</option><option>Dark Mystery</option></select></div>
+</div>
+<div class="grid">
+<div><label class="label">NARRATIVE</label><select id="perspective"><option>Second-Person POV</option><option>First-Person POV</option><option>Third-Person Explainer</option></select></div>
+<div><label class="label">CAPTIONS</label><select id="captions"><option>Deadpan Subtitle Sans</option><option>Clean Bold Captions</option><option>Minimal Captions</option><option>Dynamic Word Captions</option></select></div>
+</div>
+<label class="label">REFERENCE (OPTIONAL)</label><input id="ref" placeholder="YouTube URL or describe a style you like">
+<button class="btn primary" id="buildBtn">Build My Video</button>
 <div id="status" class="status hidden"></div>
 </section>
 
+<section id="keyCard" class="card">
+<h3>Backup AI connection</h3>
+<p class="muted small">Normally POVForge uses its secure server. If the server connection is unavailable, you can paste your own Gemini API key here. The key stays in this browser and is never sent to GitHub.</p>
+<input id="directKey" type="password" placeholder="Paste Gemini API key (optional)">
+<button class="btn secondary" id="saveKey">Use This Key</button>
+</section>
+
 <section id="output" class="card hidden">
-<div class="top"><h2>Your AI Project</h2><button class="btn secondary" style="width:auto;padding:9px 12px" onclick="downloadProject()">Download</button></div>
-<div class="tabs" id="tabs"></div>
-<pre id="viewer"></pre>
+<div class="top"><h2>Your production</h2><button class="btn secondary" id="download" style="width:auto">Download</button></div>
+<div class="tabs" id="tabs"></div><pre id="viewer"></pre>
 </section>
 </main>
 <script>
-const API_BASE='https://pov-studio-ai.vercel.app';let project=null;let current='script';
-const sections=['script','storyboard','visuals','voiceover','editing','thumbnail','seo'];
-const labels={script:'Script',storyboard:'Storyboard',visuals:'Visual Prompts',voiceover:'Voiceover',editing:'Edit Plan',thumbnail:'Thumbnail',seo:'YouTube SEO'};
-function $(id){return document.getElementById(id)}
-function showStatus(msg,err=false){$('status').classList.remove('hidden');$('status').innerHTML=err?'<span class="err">'+escapeHtml(msg)+'</span>':'<span class="ok">'+escapeHtml(msg)+'</span>'}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const API='https://pov-studio-ai.vercel.app';
+const sections=['research','script','storyboard','visuals','voiceover','editing','captions','thumbnail','seo'];
+const labels={research:'Research',script:'Script',storyboard:'Storyboard',visuals:'Visuals',voiceover:'Voiceover',editing:'Editing',captions:'Captions',thumbnail:'Thumbnail',seo:'SEO'};
+let project=null,current='research';
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function status(msg,err=false){$('status').classList.remove('hidden');$('status').innerHTML='<span class="'+(err?'err':'ok')+'">'+esc(msg)+'</span>'}
+function renderTabs(){$('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" data-tab="'+s+'">'+labels[s]+'</button>').join('');document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{current=b.dataset.tab;renderTabs();render()})}
+function render(){$('viewer').textContent=project&&project[current]?(typeof project[current]==='string'?project[current]:JSON.stringify(project[current],null,2)):'No content yet.'}
+function saveLocal(){localStorage.setItem('povforge_project',JSON.stringify(project))}
+function download(){if(!project)return;const text=sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2))).join('\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='povforge-project.txt';a.click()}
+$('saveKey').onclick=()=>{const k=$('directKey').value.trim();if(!k)return status('Paste your Gemini key first.',true);localStorage.setItem('povforge_gemini_key',k);status('Backup key saved on this device.')}
+$('download').onclick=download;
+async function generateDirect(payload,key){
+const prompt='You are POVForge AI, an expert faceless YouTube producer. Research the topic using current web information when useful, then create an original production package.\nSETTINGS:\n'+JSON.stringify(payload)+'\nReturn ONLY valid JSON with exactly these keys: research, script, storyboard, visuals, voiceover, editing, captions, thumbnail, seo. Research should list important claims and sources. Script should fit the requested duration and use the requested narrative. Storyboard must be scene-by-scene with timestamps. Visuals must have one detailed generation prompt per scene. Voiceover must contain final narration. Editing must include CapCut-friendly cuts, music, SFX and transitions. Captions must specify the exact caption treatment. Thumbnail must include 3 concepts and a final image prompt. SEO must include 5 titles, description, tags, hashtags and pinned comment.';
+const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{responseMimeType:'application/json',temperature:.7}})});
+const d=await r.json();if(!r.ok)throw new Error(d.error?.message||'Gemini request failed');const raw=d.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';return JSON.parse(raw.replace(/^\`\`\`json|^\`\`\`|\`\`\`$/g,'').trim())
+}
 async function build(){
-const idea=$('idea').value.trim();if(!idea)return showStatus('Enter your video idea first.',true);
-const duration=$('duration').value,voice=$('voice').value,style=$('style').value,ref=$('ref').value.trim();
-const voiceStyle=$('voiceStyle').value,perspective=$('perspective').value,direction=$('direction').value,captions=$('captions').value;
-showStatus('AI is building your full production blueprint…');$('output').classList.add('hidden');
+const idea=$('idea').value.trim();if(!idea)return status('Enter your video idea first.',true);
+const payload={idea,duration:$('duration').value,voice:$('voice').value,voiceStyle:$('voice').value,visualStyle:$('style').value,perspective:$('perspective').value,direction:$('direction').value,captions:$('captions').value,reference:$('ref').value.trim()};
+$('buildBtn').disabled=true;$('buildBtn').textContent='Building…';status('POVForge is researching and building your production…');$('output').classList.add('hidden');
 try{
-const res=await fetch(API_BASE+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,duration,voice,voiceStyle,visualStyle:style,perspective,direction,captions,reference:ref})});
-const data=await res.json();if(!res.ok)throw new Error(data.error||'Backend request failed');
-project=data.project;$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
-}catch(e){showStatus(e.message||'Something went wrong. Check your API key and try again.',true)}
+let r=await fetch(API+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+let d=await r.json();
+if(!r.ok)throw new Error(d.error||'Server failed');
+project=d.project||d;status('Production package ready.');$('output').classList.remove('hidden');renderTabs();render();saveLocal();
+}catch(serverErr){
+const key=localStorage.getItem('povforge_gemini_key');
+if(key){try{project=await generateDirect(payload,key);status('Server unavailable, so POVForge used your saved Gemini connection.');$('output').classList.remove('hidden');renderTabs();render();saveLocal()}catch(e){status(e.message,true)}}else{status('Server connection failed. You can use the Backup AI connection below without rebuilding the app.',true)}
+}finally{$('buildBtn').disabled=false;$('buildBtn').textContent='Build My Video'}
 }
-function renderTabs(){ $('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" onclick="current=\''+s+'\';renderTabs();render()">'+labels[s]+'</button>').join('') }
-function render(){ $('viewer').textContent=typeof project?.[current]==='string'?project[current]:JSON.stringify(project?.[current],null,2)}
-function downloadProject(){
-if(!project)return;const text='POV STUDIO AI PROJECT\n\n'+sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2)).trim()).join('\n\n');
-const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='pov-studio-ai-project.txt';a.click();URL.revokeObjectURL(a.href)
-}
-
+$('buildBtn').onclick=build;
+const old=localStorage.getItem('povforge_project');if(old){try{project=JSON.parse(old);$('output').classList.remove('hidden');renderTabs();render()}catch{}}
 </script></body></html>
