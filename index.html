@@ -20,17 +20,7 @@ pre{white-space:pre-wrap;word-wrap:break-word;background:#0b0e14;border:1px soli
 <div class="brand">POV Studio AI</div>
 <div class="hero"><span class="pill">Mobile-first</span><span class="pill">Gemini-powered</span><h1>Turn one idea into a complete YouTube video.</h1><p class="muted">Script, scenes, visual prompts, voiceover, editing, thumbnail and SEO — from your phone.</p></div>
 
-<section class="card">
-<h2>1. AI Setup</h2>
-<label class="label">GEMINI API KEY</label>
-<input id="key" type="password" placeholder="Paste your Gemini API key">
-<p class="muted small">For this GitHub Pages version, your key is used only in your browser and is not saved unless you choose to save it. For a public production app, use a server-side key instead.</p>
-<button class="btn secondary" onclick="saveKey()">Save key on this device</button>
-<button class="btn danger" onclick="clearKey()" style="margin-top:8px">Clear saved key</button>
-</section>
-
-<section class="card">
-<h2>2. Create Project</h2>
+<section class="card"><h2>1. Create Project</h2>
 <label class="label">VIDEO IDEA</label>
 <textarea id="idea" placeholder="Example: POV: You Become a Billionaire Overnight"></textarea>
 <div class="grid">
@@ -60,7 +50,7 @@ pre{white-space:pre-wrap;word-wrap:break-word;background:#0b0e14;border:1px soli
 </section>
 </main>
 <script>
-const KEY='pov_gemini_key';let project=null;let current='script';
+const API_BASE='https://pov-studio-ai.vercel.app';let project=null;let current='script';
 const sections=['script','storyboard','visuals','voiceover','editing','thumbnail','seo'];
 const labels={script:'Script',storyboard:'Storyboard',visuals:'Visual Prompts',voiceover:'Voiceover',editing:'Edit Plan',thumbnail:'Thumbnail',seo:'YouTube SEO'};
 function $(id){return document.getElementById(id)}
@@ -103,15 +93,11 @@ Requirements:
 - SEO: 5 title options, description, keywords/tags, hashtags and a short pinned-comment idea.
 Keep the content original and avoid copying any reference creator's wording.\`;
 }async function build(){
-const key=getKey();const idea=$('idea').value.trim();if(!key)return showStatus('Add your Gemini API key first.',true);if(!idea)return showStatus('Enter your video idea first.',true);
+const idea=$('idea').value.trim();if(!idea)return showStatus('Enter your video idea first.',true);
 const duration=$('duration').value,voice=$('voice').value,style=$('style').value,ref=$('ref').value.trim();
 const voiceStyle=$('voiceStyle').value,perspective=$('perspective').value,direction=$('direction').value,captions=$('captions').value;
 showStatus('AI is building your full production blueprint…');$('output').classList.add('hidden');
-try{
-const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:makePrompt(idea,duration,voice,style,ref,voiceStyle,perspective,direction,captions)]}]}],generationConfig:{responseMimeType:'application/json',temperature:.7}})});
-const data=await res.json();if(!res.ok)throw new Error(data.error?.message||'Gemini request failed');
-const raw=data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';project=JSON.parse(raw.replace(/^\`\`\`json|^\`\`\`|\`\`\`$/g,'').trim());
-$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
+try{\nconst res=await fetch(API_BASE+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,duration,voice,voiceStyle,visualStyle:style,perspective,direction,captions,reference:ref})});\nconst data=await res.json();if(!res.ok)throw new Error(data.error||'Backend request failed');\nproject=data.project;\n$('output').classList.remove('hidden');renderTabs();render();showStatus('Done — your project is ready with the selected creative style.');
 }catch(e){showStatus(e.message||'Something went wrong. Check your API key and try again.',true)}
 }
 function renderTabs(){ $('tabs').innerHTML=sections.map(s=>'<button class="tab '+(s===current?'active':'')+'" onclick="current=\''+s+'\';renderTabs();render()">'+labels[s]+'</button>').join('') }
@@ -120,5 +106,5 @@ function downloadProject(){
 if(!project)return;const text='POV STUDIO AI PROJECT\n\n'+sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2)).trim()).join('\n\n');
 const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='pov-studio-ai-project.txt';a.click();URL.revokeObjectURL(a.href)
 }
-window.addEventListener('load',()=>{const k=localStorage.getItem(KEY);if(k)$('key').value=k})
+
 </script></body></html>
