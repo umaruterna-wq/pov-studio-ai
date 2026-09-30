@@ -1,4 +1,5 @@
 // POV Studio AI production backend scaffold.
+// Deployment refresh: 2026-09-30
 // Deploy this folder as a serverless Node function (Vercel/Netlify) with secrets stored as environment variables.
 // Required env: GEMINI_API_KEY, SHOTSTACK_API_KEY.
 // The public GitHub Pages site must never contain these secrets.
