@@ -8,12 +8,10 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#1a2030 0,#07090d 45%);color:var(--text);font:15px system-ui,-apple-system,sans-serif}main{max-width:820px;margin:auto;padding:18px}.brand{font-size:24px;font-weight:900}.tag{display:inline-block;background:#1b2230;border:1px solid #303949;border-radius:99px;padding:5px 9px;font-size:12px;margin:3px}.hero{padding:30px 0 16px}.hero h1{font-size:42px;line-height:1.02;margin:12px 0}.muted{color:var(--muted)}.card{background:rgba(16,20,28,.94);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 12px 40px #0005}.label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;color:#aab3c2;margin:0 0 7px}input,textarea,select{width:100%;background:#090c12;color:#fff;border:1px solid #303846;border-radius:12px;padding:13px;margin:0 0 14px}textarea{min-height:110px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:0;border-radius:12px;padding:14px;font-weight:850;width:100%;cursor:pointer}.primary{background:#fff;color:#080a0e}.secondary{background:#202735;color:#fff}.status{padding:12px;border-radius:12px;background:#0b0f16;margin-top:12px}.ok{color:#76e3a0}.err{color:#ff8894}.hidden{display:none}.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:5px}.tab{white-space:nowrap;border:0;background:#202735;color:#fff;padding:9px 12px;border-radius:10px}.tab.active{background:#fff;color:#080a0e}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}pre{white-space:pre-wrap;word-break:break-word;background:#090c12;border:1px solid #252c38;border-radius:12px;padding:14px;line-height:1.55}.small{font-size:12px}.danger{background:#3b2026;color:#fff}
 @media(max-width:560px){.hero h1{font-size:34px}.grid{grid-template-columns:1fr}}
 
-.auth-gate{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% -10%,#1a2030 0,#07090d 55%);display:flex;align-items:center;justify-content:center;padding:18px}.auth-box{width:min(440px,100%);background:rgba(16,20,28,.98);border:1px solid #252c38;border-radius:24px;padding:24px;box-shadow:0 20px 70px #0008}.auth-logo{font-size:25px;font-weight:950}.auth-box h1{font-size:30px;margin:22px 0 7px}.auth-box .btn{margin-bottom:10px}.auth-msg{min-height:20px;margin:4px 0 12px;font-size:13px}.userbar{display:flex;align-items:center;gap:8px}.user-email{font-size:12px;color:#9aa4b2;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style></head>
 <body>
-<div id="authGate" class="auth-gate"><div class="auth-box"><div class="auth-logo">POVForge AI</div><h1 id="authTitle">Welcome back</h1><p id="authSub" class="muted">Sign in to save your productions and access your workspace.</p><div id="authMsg" class="auth-msg"></div><label class="label">EMAIL</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"><label class="label">PASSWORD</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"><button type="button" class="btn primary" id="authSubmit">Sign In</button><button type="button" class="btn secondary" id="googleBtn">Continue with Google</button><button type="button" class="btn secondary" id="authToggle">Create an account</button><button type="button" class="btn secondary hidden" id="forgotBtn">Send password reset email</button><p class="muted small" style="margin-top:12px">Your account is secured by Firebase Authentication. We never store your password in POVForge.</p></div></div>
 <main>
-<div class="top"><div class="brand">POVForge AI</div><div class="userbar"><span id="userEmail" class="user-email"></span><button id="logoutBtn" class="btn secondary" style="width:auto;padding:9px 12px">Log out</button></div></div>
+<div class="top"><div class="brand">POVForge AI</div></div>
 <div class="hero"><span class="tag">Phone-first</span><span class="tag">AI Producer</span><span class="tag">YouTube</span><h1>One idea. One complete production.</h1><p class="muted">Research, script, scenes, visuals, voiceover, edit plan, captions, thumbnail and SEO — built for faceless POV channels.</p></div>
 
 <section class="card">
@@ -44,7 +42,7 @@
 </section>
 
 <section id="output" class="card hidden">
-<div class="top"><h2>Your production</h2><div style="display:flex;gap:7px"><button class="btn secondary" id="download" style="width:auto">Download</button><button class="btn secondary" id="previewVideo" style="width:auto">Preview Scenes</button><button class="btn primary" id="renderVideo" style="width:auto">Make Video (No Veo)</button></div></div><div id="renderStatus" class="status hidden"></div>
+<div class="top"><h2>Your production</h2><button class="btn secondary" id="download" style="width:auto">Download</button></div></div>
 <div class="tabs" id="tabs"></div><div id="captionEdit" class="hidden"><label class="label">EDIT CAPTIONS</label><textarea id="captionText" style="min-height:240px"></textarea><button class="btn secondary" id="saveCaptions">Save Caption Changes</button></div><pre id="viewer"></pre>
 </section>
 </main>
@@ -61,7 +59,7 @@ function render(){const ce=$('captionEdit');if(current==='captions'){ce.classLis
 function saveLocal(){localStorage.setItem('povforge_project',JSON.stringify(project))}
 function download(){if(!project)return;const text=sections.map(s=>'===== '+labels[s].toUpperCase()+' =====\n'+(typeof project[s]==='string'?project[s]:JSON.stringify(project[s],null,2))).join('\n\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download='povforge-project.txt';a.click()}
 $('saveKey').onclick=()=>{const k=$('directKey').value.trim();if(!k)return status('Paste your Gemini key first.',true);localStorage.setItem('povforge_gemini_key',k);status('Backup key saved on this device.')}
-$('download').onclick=download;$('previewVideo').onclick=()=>{if(!project)return status('Build a video first.',true);current='storyboard';renderTabs();render()};$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
+$('download').onclick=download;$('saveCaptions').onclick=()=>{project.captions=$('captionText').value;saveLocal();render();status('Caption changes saved.');};
 async function generateDirect(payload,key){
 const researchPrompt='Research this YouTube topic using Google Search grounding. Return concise factual notes, useful source titles/URLs when available, and uncertainty notes. Do not write the final production package. TOPIC: '+payload.idea;
 const rr=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:researchPrompt}]}],tools:[{google_search:{}}],generationConfig:{temperature:.2}})});
@@ -88,79 +86,6 @@ if(key){try{project=await generateDirect(payload,key);status('Server unavailable
 }
 $('buildBtn').onclick=build;
 
-async function apiFetch(path,options={}){
-  try{
-    const r=await fetch(API+path,{...options,signal:AbortSignal.timeout(120000)});
-    const text=await r.text();
-    let d={};try{d=text?JSON.parse(text):{}}catch{d={error:text||('HTTP '+r.status)}}
-    if(!r.ok)throw new Error(d.error||('HTTP '+r.status));
-    return d;
-  }catch(e){
-    if(e.name==='AbortError'||e.name==='TimeoutError')throw new Error('Connection timed out while contacting '+path);
-    if(e instanceof TypeError)throw new Error('Network connection failed at '+path+'. The video service could not be reached.');
-    throw e;
-  }
-}
-async function makeVideo(){
-if(!project)return;
-const box=$('renderStatus');box.classList.remove('hidden');
-try{
- let scenes=[];
- if(Array.isArray(project.storyboard))scenes=project.storyboard;
- else if(project.storyboard&&Array.isArray(project.storyboard.scenes))scenes=project.storyboard.scenes;
- else if(Array.isArray(project.visuals))scenes=project.visuals.map((x,i)=>({scene:i+1,prompt:typeof x==='string'?x:(x.prompt||x.description||JSON.stringify(x))}));
- scenes=scenes.slice(0,40);
- if(!scenes.length)throw new Error('No scene prompts were generated.');
- const durationSeconds=parseInt($('duration').value,10)*60||600;
- let narration='';
- if(typeof project.voiceover==='string')narration=project.voiceover;
- else if(project.voiceover?.narration)narration=project.voiceover.narration;
- else if(project.voiceover?.script)narration=project.voiceover.script;
- else if(typeof project.script==='string')narration=project.script;
- else if(project.script?.narration)narration=project.script.narration;
- else narration=JSON.stringify(project.voiceover||project.script||'');
- box.textContent='Building no-Veo video: generating AI images and voice with Shotstack…';
- const rd=await apiFetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-   noVeo:true,scenes,narration,voice:$('voice').value,durationSeconds,
-   output:{format:'mp4',resolution:'hd',aspectRatio:'16:9'}
- })});
- const renderId=rd.response?.id||rd.id||rd.data?.id;
- if(!renderId)throw new Error(rd.error?.message||'Shotstack did not return a render id.');
- for(let t=0;t<120;t++){
-   box.textContent='Creating images, AI voice and final MP4… '+Math.min(99,Math.round((t/120)*100))+'%';
-   const sd=await apiFetch('/api/render-status?id='+encodeURIComponent(renderId));
-   if((sd.status==='done'||sd.status==='ready'||sd.url)&&sd.url){
-     box.innerHTML='<strong>Your no-Veo MP4 is ready.</strong><br><a href="'+esc(sd.url)+'" target="_blank" rel="noopener" style="color:#fff;font-weight:800">Open final video</a>';
-     return;
-   }
-   if(sd.status==='failed')throw new Error('Shotstack final render failed.');
-   await new Promise(r=>setTimeout(r,5000));
- }
- box.textContent='The render is still processing. Tap Make Video again later to check it.';
-}catch(e){box.textContent='No-Veo video error: '+(e.message||'Unknown video error')}
-}
-$('renderVideo').onclick=async()=>{const box=$('renderStatus');box.classList.remove('hidden');box.textContent='Starting no-Veo video generation…';$('renderVideo').disabled=true;try{await makeVideo()}catch(e){box.textContent='Video error: '+(e?.message||String(e))}finally{$('renderVideo').disabled=false}};
-
 const old=localStorage.getItem('povforge_project');if(old){try{project=JSON.parse(old);$('output').classList.remove('hidden');renderTabs();render()}catch{}}
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-// Replace these values with the Web App config from your Firebase project. Firebase web config is safe to publish; passwords/API secrets are not.
-const firebaseConfig={apiKey:"AIzaSyCjhgmlEx5CO9NHPh01E0OS6PkgUnttx8k",authDomain:"povforge-a86b1.firebaseapp.com",projectId:"povforge-a86b1",storageBucket:"povforge-a86b1.firebasestorage.app",messagingSenderId:"308720423791",appId:"1:308720423791:web:7cfc43be0dde0851140e9a",measurementId:"G-ZQ4JCKVVS5"};
-const configured=!Object.values(firebaseConfig).some(v=>String(v).startsWith('REPLACE_WITH_'));
-const gate=document.getElementById('authGate'),msg=document.getElementById('authMsg'),title=document.getElementById('authTitle'),sub=document.getElementById('authSub'),submit=document.getElementById('authSubmit'),toggle=document.getElementById('authToggle'),google=document.getElementById('googleBtn'),forgot=document.getElementById('forgotBtn');
-let signup=false;
-function say(t,err=false){msg.textContent=t;msg.className='auth-msg '+(err?'err':'ok')}
-function mode(){title.textContent=signup?'Create your POVForge account':'Welcome back';sub.textContent=signup?'Create an account to keep your productions private and synced.':'Sign in to save your productions and access your workspace.';submit.textContent=signup?'Create Account':'Sign In';toggle.textContent=signup?'I already have an account':'Create an account';forgot.classList.toggle('hidden',signup)}
-if(!configured){say('Firebase authentication needs to be connected. Open Firebase Console and add a Web App config to this project.',true);submit.disabled=true;google.disabled=true;forgot.disabled=true}
-let auth=null;
-if(configured){try{const app=initializeApp(firebaseConfig);auth=getAuth(app);onAuthStateChanged(auth,user=>{if(user){gate.classList.add('hidden');document.getElementById('userEmail').textContent=user.email||user.displayName||'Signed in';}else{gate.classList.remove('hidden');document.getElementById('userEmail').textContent=''}})}catch(e){say('Firebase could not start: '+e.message,true);}}
-toggle.onclick=()=>{signup=!signup;mode();say('')};
-submit.onclick=async()=>{if(!auth)return;const email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPassword').value;if(!email||!pass)return say('Enter your email and password.',true);submit.disabled=true;try{if(signup)await createUserWithEmailAndPassword(auth,email,pass);else await signInWithEmailAndPassword(auth,email,pass)}catch(e){say(e.code==='auth/invalid-credential'?'Email or password is incorrect.':e.message,true)}finally{submit.disabled=false}};
-google.onclick=async()=>{if(!auth)return;try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){say(e.message,true)}};
-forgot.onclick=async()=>{if(!auth)return;const email=document.getElementById('authEmail').value.trim();if(!email)return say('Enter your email first.',true);try{await sendPasswordResetEmail(auth,email);say('Password reset email sent.')}catch(e){say(e.message,true)}};
-document.getElementById('logoutBtn').onclick=()=>auth&&signOut(auth);
-mode();
 </script>
 </body></html>
