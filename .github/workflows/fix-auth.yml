@@ -1,0 +1,45 @@
+name: Fix Firebase Auth
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace Firebase auth block
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text()
+          start=s.find('<script type="module">')
+          end=s.find('</script>\n</body></html>', start)
+          if start < 0 or end < 0:
+            raise SystemExit("Auth block not found")
+          new='''<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script>
+const firebaseConfig={apiKey:"AIzaSyCjhgmlEx5CO9NHPh01E0OS6PkgUnttx8k",authDomain:"povforge-a86b1.firebaseapp.com",projectId:"povforge-a86b1",storageBucket:"povforge-a86b1.firebasestorage.app",messagingSenderId:"308720423791",appId:"1:308720423791:web:7cfc43be0dde0851140e9a",measurementId:"G-ZQ4JCKVVS5"};
+const gate=document.getElementById('authGate'),msg=document.getElementById('authMsg'),title=document.getElementById('authTitle'),sub=document.getElementById('authSub'),submit=document.getElementById('authSubmit'),toggle=document.getElementById('authToggle'),google=document.getElementById('googleBtn'),forgot=document.getElementById('forgotBtn');
+let signup=false,auth=null;
+function say(t,err=false){msg.textContent=t;msg.className='auth-msg '+(err?'err':'ok')}
+function mode(){title.textContent=signup?'Create your POVForge account':'Welcome back';sub.textContent=signup?'Create an account to keep your productions private and synced.':'Sign in to save your productions and access your workspace.';submit.textContent=signup?'Create Account':'Sign In';toggle.textContent=signup?'I already have an account':'Create an account';forgot.classList.toggle('hidden',signup)}
+function friendly(e){const m={'auth/invalid-credential':'Email or password is incorrect.','auth/user-not-found':'No account was found with that email.','auth/wrong-password':'Email or password is incorrect.','auth/email-already-in-use':'That email already has an account. Try Sign In.','auth/weak-password':'Password must be at least 6 characters.','auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase yet.','auth/unauthorized-domain':'This website is not authorized in Firebase Authentication.','auth/network-request-failed':'Network error. Check your internet connection.'};return m[e.code]||e.message||'Authentication failed.'}
+try{if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);auth=firebase.auth();auth.onAuthStateChanged(user=>{if(user){gate.classList.add('hidden');document.getElementById('userEmail').textContent=user.email||user.displayName||'Signed in'}else{gate.classList.remove('hidden');document.getElementById('userEmail').textContent=''}})}catch(e){say('Firebase could not start: '+friendly(e),true)}
+toggle.addEventListener('click',()=>{signup=!signup;mode();say('')});
+submit.addEventListener('click',async()=>{say(signup?'Creating account…':'Signing in…');if(!auth)return say('Firebase is not connected. Refresh the page and try again.',true);const email=document.getElementById('authEmail').value.trim(),pass=document.getElementById('authPassword').value;if(!email||!pass)return say('Enter your email and password.',true);submit.disabled=true;try{if(signup)await auth.createUserWithEmailAndPassword(email,pass);else await auth.signInWithEmailAndPassword(email,pass)}catch(e){say(friendly(e),true)}finally{submit.disabled=false}});
+google.addEventListener('click',async()=>{if(!auth)return say('Firebase is not connected.',true);say('Opening Google sign-in…');try{await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())}catch(e){say(friendly(e),true)}});
+forgot.addEventListener('click',async()=>{if(!auth)return say('Firebase is not connected.',true);const email=document.getElementById('authEmail').value.trim();if(!email)return say('Enter your email first.',true);try{await auth.sendPasswordResetEmail(email);say('Password reset email sent.')}catch(e){say(friendly(e),true)}});
+document.getElementById('logoutBtn').addEventListener('click',()=>auth&&auth.signOut());
+mode();
+</script>'''
+          p.write_text(s[:start]+new+s[end+9:])
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix Firebase auth buttons for mobile browsers" || exit 0
+          git push
