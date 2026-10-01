@@ -147,7 +147,7 @@ const old=localStorage.getItem('povforge_project');if(old){try{project=JSON.pars
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 // Replace these values with the Web App config from your Firebase project. Firebase web config is safe to publish; passwords/API secrets are not.
-const firebaseConfig={apiKey:"REPLACE_WITH_FIREBASE_WEB_API_KEY",authDomain:"REPLACE_WITH_PROJECT.firebaseapp.com",projectId:"REPLACE_WITH_PROJECT_ID",storageBucket:"REPLACE_WITH_PROJECT.appspot.com",messagingSenderId:"REPLACE_WITH_SENDER_ID",appId:"REPLACE_WITH_APP_ID"};
+const firebaseConfig={apiKey:"AIzaSyCjhgmlEx5CO9NHPh01E0OS6PkgUnttx8k",authDomain:"povforge-a86b1.firebaseapp.com",projectId:"povforge-a86b1",storageBucket:"povforge-a86b1.firebasestorage.app",messagingSenderId:"308720423791",appId:"1:308720423791:web:7cfc43be0dde0851140e9a",measurementId:"G-ZQ4JCKVVS5"};
 const configured=!Object.values(firebaseConfig).some(v=>String(v).startsWith('REPLACE_WITH_'));
 const gate=document.getElementById('authGate'),msg=document.getElementById('authMsg'),title=document.getElementById('authTitle'),sub=document.getElementById('authSub'),submit=document.getElementById('authSubmit'),toggle=document.getElementById('authToggle'),google=document.getElementById('googleBtn'),forgot=document.getElementById('forgotBtn');
 let signup=false;
